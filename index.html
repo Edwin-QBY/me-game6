@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UT 倒計時</title>
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #e2b714;
+            --text-color: #f0f4f8;
+            --text-sub: #8a99ad;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% 30%, #1a1f29 0%, var(--bg-color) 70%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .target-info {
+            color: var(--accent-color);
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        /* 倒計時卡片網格 */
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        @media (max-width: 480px) {
+            .countdown-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .time-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 8px;
+        }
+
+        .time-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--accent-color);
+        }
+
+        .time-label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 6px;
+        }
+
+        /* 超高精度百分比區塊 */
+        .progress-container {
+            margin-top: 30px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .percent-label {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+        }
+
+        .percent-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #fff;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e2b714, #ff5e62);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>UT 倒計時</h1>
+    <div class="target-info">目標時間：10 月 20 日 上午 08:30</div>
+
+    <!-- 倒計時顯示網格 -->
+    <div class="countdown-grid">
+        <div class="time-box">
+            <div class="time-value" id="days">00</div>
+            <div class="time-label">天</div>
+        </div>
+        <div class="time-box">
+            <div class="time-value" id="hours">00</div>
+            <div class="time-label">小時</div>
+        </div>
+        <div class="time-box">
+            <div class="time-value" id="minutes">00</div>
+            <div class="time-label">分鐘</div>
+        </div>
+        <div class="time-box">
+            <div class="time-value" id="seconds">00.00</div>
+            <div class="time-label">秒</div>
+        </div>
+    </div>
+
+    <!-- 超高精確度百分比區塊 -->
+    <div class="progress-container">
+        <div class="percent-label">⏳ 倒數準備完成度（精確至小數點後 20 位）：</div>
+        <div class="percent-value" id="percent-text">0.00000000000000000000%</div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <button class="btn-reset" onclick="resetStartTime()">重置起始時間計算點</button>
+</div>
+
+<script>
+    let timerInterval = null;
+
+    // 設定目標時間：當前年份的 10 月 20 日 上午 08:30:00
+    function getTargetDate() {
+        const now = new Date();
+        let targetYear = now.getFullYear();
+        let target = new Date(targetYear, 9, 20, 8, 30, 0, 0); // 月份 9 代表 10 月 (0-indexed)
+
+        // 如果今年 10 月 20 日 08:30 已過，則設定為明年 10 月 20 日
+        if (now > target) {
+            target = new Date(targetYear + 1, 9, 20, 8, 30, 0, 0);
+        }
+        return target;
+    }
+
+    const targetDate = getTargetDate();
+
+    // 取得或初始化倒計時起始時間（用作計算百分比進度）
+    let startTime = localStorage.getItem('ut_start_time');
+    if (!startTime || new Date(parseInt(startTime)) >= targetDate) {
+        startTime = Date.now();
+        localStorage.setItem('ut_start_time', startTime);
+    } else {
+        startTime = parseInt(startTime);
+    }
+
+    function startUTCountdown() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        // 每 10 毫秒（0.01 秒）刷新一次畫面
+        timerInterval = setInterval(() => {
+            const now = new Date();
+            const diff = targetDate.getTime() - now.getTime();
+
+            if (diff <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00.00";
+                document.getElementById('percent-text').innerText = "100.00000000000000000000%";
+                document.getElementById('progress-fill').style.width = "100%";
+                return;
+            }
+
+            // 1. 計算剩餘 天、小時、分鐘、秒 (含0.01秒)
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            const centiseconds = Math.floor((diff % 1000) / 10);
+
+            document.getElementById('days').innerText = padZero(days);
+            document.getElementById('hours').innerText = padZero(hours);
+            document.getElementById('minutes').innerText = padZero(minutes);
+            
+            const secStr = padZero(seconds);
+            const csStr = padZero(centiseconds);
+            document.getElementById('seconds').innerText = `${secStr}.${csStr}`;
+
+            // 2. 計算超高精度百分比（小數點後 20 位）
+            const totalDuration = targetDate.getTime() - startTime;
+            const elapsed = now.getTime() - startTime;
+            let percentage = (elapsed / totalDuration) * 100;
+
+            if (percentage < 0) percentage = 0;
+            if (percentage > 100) percentage = 100;
+
+            // 精確至小數點後 20 位
+            document.getElementById('percent-text').innerText = percentage.toFixed(20) + '%';
+            document.getElementById('progress-fill').style.width = percentage.toFixed(4) + '%';
+
+        }, 10);
+    }
+
+    function padZero(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+    function resetStartTime() {
+        if (confirm("確定要重置進度條的起始計算點嗎？（這將會從現在開始重新計算進度百分比）")) {
+            localStorage.setItem('ut_start_time', Date.now());
+            location.reload();
+        }
+    }
+
+    // 開啟網頁後自動開始倒數
+    window.onload = startUTCountdown;
+</script>
+
+</body>
+</html>
