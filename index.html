@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UT 倒計時</title>
+    <title>half year exam</title>
     <style>
         :root {
             --bg-color: #0d0f12;
@@ -156,8 +156,8 @@
 <body>
 
 <div class="container">
-    <h1>UT 倒計時</h1>
-    <div class="target-info">目標時間：10 月 20 日 上午 08:30</div>
+    <h1>half year exam</h1>
+    <div class="target-info">目標時間：12 月 7 日 上午 08:30</div>
 
     <!-- 倒計時顯示網格 -->
     <div class="countdown-grid">
@@ -194,15 +194,15 @@
 <script>
     let timerInterval = null;
 
-    // 設定目標時間：當前年份的 10 月 20 日 上午 08:30:00
+    // 設定目標時間：當前年份的 12 月 7 日 上午 08:30:00
     function getTargetDate() {
         const now = new Date();
         let targetYear = now.getFullYear();
-        let target = new Date(targetYear, 9, 20, 8, 30, 0, 0); // 月份 9 代表 10 月 (0-indexed)
+        let target = new Date(targetYear, 11, 7, 8, 30, 0, 0); // 月份 11 代表 12 月 (0-indexed)
 
-        // 如果今年 10 月 20 日 08:30 已過，則設定為明年 10 月 20 日
+        // 如果今年 12 月 7 日 08:30 已過，則設定為明年 12 月 7 日
         if (now > target) {
-            target = new Date(targetYear + 1, 9, 20, 8, 30, 0, 0);
+            target = new Date(targetYear + 1, 11, 7, 8, 30, 0, 0);
         }
         return target;
     }
